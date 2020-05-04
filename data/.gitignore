@@ -1,0 +1,5 @@
+attachments/
+config.json
+db.sqlite3*
+icon_cache/
+rsa_key.*

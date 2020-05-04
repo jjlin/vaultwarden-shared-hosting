@@ -1,0 +1,3 @@
+# Check that the bitwarden_rs backend is up, once a minute. You can replace
+# */1 with */2 to check every 2 minutes, */5 to check every 5 minutes, etc.
+*/1 * * * * $HOME/bwrs/check.sh

@@ -1,0 +1,4 @@
+{
+  "domain": "https://bw.example.org",
+  "admin_token": "<output of 'openssl rand -hex 32'>"
+}

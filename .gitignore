@@ -1,0 +1,4 @@
+*.log
+bitwarden_rs
+output/
+web-vault/
