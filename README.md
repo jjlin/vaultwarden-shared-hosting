@@ -4,8 +4,8 @@ This is not a common configuration, and not recommended compared to running
 on a VPS or similar, but sometimes an organization only has access to a
 shared hosting service and only wants to use that. This repo contains an
 example of how that can be accomplished on
-[DreamHost](https://www.dreamhost.com/), though it can probably be adapted to
-any number of other shared hosting services.
+[DreamHost](https://www.dreamhost.com/) specifically, though with minor
+changes, it can probably be applied to many other shared hosting services.
 
 Shared hosting is generally geared towards running PHP apps. Many hosts also
 support Ruby, Python, and/or Node.js apps, but there is generally no direct
@@ -65,6 +65,11 @@ The output should look like:
 Copy the `passenger_wsgi.py` file in this repo into your
 `/home/<user>/<subdomain>` directory.
 
+Note that Passenger starts a persistent Python process that loads the
+`passenger_wsgi.py` script. If you need to modify the script, you'll need to
+kill the Python process (e.g., `pkill python3`) to force it to reload the
+modified script.
+
 For more details, see [Passenger and Python WSGI](https://help.dreamhost.com/hc/en-us/articles/215769548-Passenger-and-Python-WSGI).
 
 If you visit your subdomain now (e.g., `https://bw.example.org`), you should
@@ -107,8 +112,8 @@ The output should look like the following (the layer IDs will likely all be diff
 
 This pulls the latest bitwarden_rs server Docker image and extracts its files
 into a directory called `output`. Move the server binary and web vault files
-into your `bitwarden_rs` directory. The other files in `output` aren't
-needed, so you can delete the directory afterwards.
+into your `bwrs` directory. The other files in `output` aren't needed, so you
+can delete the directory afterwards.
 
     $ mv output/bitwarden_rs output/web-vault .
     $ rm -rf output
