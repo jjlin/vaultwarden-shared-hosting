@@ -1,4 +1,4 @@
 *.log
-bitwarden_rs
+vaultwarden
 output/
 web-vault/

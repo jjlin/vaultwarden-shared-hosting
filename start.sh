@@ -1,12 +1,12 @@
 #!/bin/sh
 
-BITWARDENRS_HOME="$(dirname $0)"
-cd "${BITWARDENRS_HOME}"
+VAULTWARDEN_HOME="$(dirname $0)"
+cd "${VAULTWARDEN_HOME}"
 . ./env.sh
 
-if pgrep bitwarden_rs >/dev/null 2>&1; then
-    echo "Killing existing bitwarden_rs process..."
-    pkill bitwarden_rs
+if pgrep vaultwarden >/dev/null 2>&1; then
+    echo "Killing existing vaultwarden process..."
+    pkill vaultwarden
 fi
-nohup ./bitwarden_rs >>bitwarden_rs.log 2>&1 &
-echo "Started bitwarden_rs."
+nohup ./vaultwarden >>vaultwarden.log 2>&1 &
+echo "Started vaultwarden."

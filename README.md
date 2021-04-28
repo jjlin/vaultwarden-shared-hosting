@@ -1,4 +1,6 @@
-## Running bitwarden_rs on a shared hosting service
+## Running Vaultwarden on a shared hosting service
+
+**Note: Vaultwarden was formerly known as bitwarden_rs.**
 
 This is not a common configuration, and not recommended compared to running
 on a VPS or similar, but sometimes an organization only has access to a
@@ -12,7 +14,7 @@ support Ruby, Python, and/or Node.js apps, but there is generally no direct
 support for reverse proxying to an arbitrary backend service. The example
 provided here uses a small Python
 [WSGI](https://en.wikipedia.org/wiki/Web_Server_Gateway_Interface) app to
-proxy to the bitwarden_rs backend.
+proxy to the Vaultwarden backend.
 
 This document assumes basic familiarity with Linux (knowing how to SSH into a
 host, copy files to the host, make and change into directories, etc.).
@@ -28,18 +30,18 @@ For more details, see [How do I enable Passenger on my domain?](https://help.dre
 
 SSH into your subdomain account. From your home directory, run
 
-    $ git clone https://github.com/jjlin/bitwardenrs-shared-hosting.git bwrs
+    $ git clone https://github.com/jjlin/vaultwarden-shared-hosting.git vaultwarden
 
-This makes a copy of this repo in a directory called `bwrs`. You can use a
-different directory name if you prefer, but you'll have to modify the value
-of `BITWARDENRS_HOME` in `passenger_wsgi.py` accordingly.
+This makes a copy of this repo in a directory called `vaultwarden`. You can use
+a different directory name if you prefer, but you'll have to modify the value
+of `VAULTWARDEN_HOME` in `passenger_wsgi.py` accordingly.
 
 If the `git` command above isn't available for some reason, you can also just
 download a zip file of the repo and extract it:
 
-    $ wget https://github.com/jjlin/bitwardenrs-shared-hosting/archive/master.zip
+    $ wget https://github.com/jjlin/vaultwarden-shared-hosting/archive/master.zip
     $ unzip master.zip
-    $ mv bitwardenrs-shared-hosting-master bwrs
+    $ mv vaultwarden-shared-hosting-master vaultwarden
 
 Stay logged in via SSH, as the rest of the steps below will need SSH as well.
 
@@ -73,18 +75,18 @@ modified script.
 For more details, see [Passenger and Python WSGI](https://help.dreamhost.com/hc/en-us/articles/215769548-Passenger-and-Python-WSGI).
 
 If you visit your subdomain now (e.g., `https://bw.example.org`), you should
-see a `502 Bad Gateway` message. This is because the bitwarden_rs backend is
+see a `502 Bad Gateway` message. This is because the Vaultwarden backend is
 not yet running.
 
-## Start the bitwarden_rs backend
+## Start the Vaultwarden backend
 
-Make sure you're in the `bwrs` directory for the steps below.
+Make sure you're in the `vaultwarden` directory for the steps below.
 
-### Download the bitwarden_rs server and web vault
+### Download the Vaultwarden server and web vault
 
 Run this command:
 
-    $ ./docker-image-extract bitwardenrs/server:alpine
+    $ ./docker-image-extract vaultwarden/server:alpine
 
 The output should look like the following (the layer IDs will likely all be different) :
 
@@ -110,15 +112,15 @@ The output should look like the following (the layer IDs will likely all be diff
     Extracting layer...
     Image contents extracted into ./output.
 
-This pulls the latest bitwarden_rs server Docker image and extracts its files
+This pulls the latest Vaultwarden server Docker image and extracts its files
 into a directory called `output`. Move the server binary and web vault files
-into your `bwrs` directory. The other files in `output` aren't needed, so you
-can delete the directory afterwards.
+into your `vaultwarden` directory. The other files in `output` aren't needed,
+so you can delete the directory afterwards.
 
-    $ mv output/bitwarden_rs output/web-vault .
+    $ mv output/vaultwarden output/web-vault .
     $ rm -rf output
 
-### Configure bitwarden_rs
+### Configure Vaultwarden
 
 For purposes of this tutorial, start by copying `config.json.template` to
 `config.json` and editing it as described below.
@@ -142,14 +144,14 @@ Do the following:
   use this admin token to log into the admin page to perform further
   configuration.
 
-### Run the bitwarden_rs backend server
+### Run the Vaultwarden backend server
 
 Run this command:
 
     $ ./start.sh
 
-This script runs the `bitwarden_rs` executable in the background, with logs
-saved in `bitwarden_rs.log`.
+This script runs the `vaultwarden` executable in the background, with logs
+saved in `vaultwarden.log`.
 
 After this, visiting https://bw.example.org should show the Bitwarden web
 vault interface, and https://bw.example.org/admin should lead to the admin
@@ -169,8 +171,8 @@ Run this command:
     $ crontab -e
 
 Paste the contents of the `crontab` file in this repo into the editor and
-save it. If you cloned this repo into a directory not named `bwrs`, make sure
-to adjust the path in the crontab directive accordingly.
+save it. If you cloned this repo into a directory not named `vaultwarden`,
+make sure to adjust the path in the crontab directive accordingly.
 
 ### Next steps
 
@@ -193,26 +195,26 @@ settings:
     These both provide 100-200 outgoing emails per day on their free tier,
     which is probably enough for small organizations.
 
-There are a lot more things that can be configured in bitwarden_rs, and a
+There are a lot more things that can be configured in Vaultwarden, and a
 detailed treatment is beyond the scope of this tutorial. For more details,
 the best place to start is
-https://github.com/dani-garcia/bitwarden_rs/wiki/Configuration-overview.
+https://github.com/dani-garcia/vaultwarden/wiki/Configuration-overview.
 
-### Upgrade bitwarden_rs
+### Upgrade Vaultwarden
 
-From time to time, you may want to upgrade bitwarden_rs to access bug fixes
-or new features. To do this, change into the `bwrs` directory, stop the
-bitwarden_rs server, and delete the existing bitwarden_rs and web vault
+From time to time, you may want to upgrade Vaultwarden to access bug fixes
+or new features. To do this, change into the `vaultwarden` directory, stop
+the Vaultwarden server, and delete the existing vaultwarden and web vault
 files:
 
-    $ pkill bitwarden_rs
-    $ rm -rf bitwarden_rs web-vault
+    $ pkill vaultwarden
+    $ rm -rf vaultwarden web-vault
 
 Then repeat the steps from
-[Download the bitwarden_rs server and web vault](#download-the-bitwarden_rs-server-and-web-vault)
-and [Run the bitwarden_rs backend server](#run-the-bitwarden_rs-backend-server).
+[Download the Vaultwarden server and web vault](#download-the-vaultwarden-server-and-web-vault)
+and [Run the Vaultwarden backend server](#run-the-vaultwarden-backend-server).
 
 ## Limitations
 
-This configuration currently doesn't support [WebSocket notifications](https://github.com/dani-garcia/bitwarden_rs/wiki/Enabling-WebSocket-notifications), though this isn't essential functionality.
+This configuration currently doesn't support [WebSocket notifications](https://github.com/dani-garcia/vaultwarden/wiki/Enabling-WebSocket-notifications), though this isn't essential functionality.
 But if you know how to get this to work in the shared host environment, feel free to send a PR.

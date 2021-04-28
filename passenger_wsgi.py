@@ -1,4 +1,4 @@
-# Copyright (c) 2020, Jeremy Lin
+# Copyright (c) 2020-2021, Jeremy Lin
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -28,10 +28,10 @@ import webob     # https://pypi.org/project/WebOb/
 import wsgiproxy # https://pypi.org/project/WSGIProxy2/
 
 # Change this if you cloned the repo into a non-default directory.
-BITWARDENRS_HOME = "{}/{}".format(os.getenv("HOME"), "bwrs")
+VAULTWARDEN_HOME = "{}/{}".format(os.getenv("HOME"), "vaultwarden")
 
 def getenv(key, default):
-    env_file = "{}/{}".format(BITWARDENRS_HOME, "env.sh")
+    env_file = "{}/{}".format(VAULTWARDEN_HOME, "env.sh")
     with open(env_file, "r") as f:
         for ln in f:
             ln = ln.strip()
