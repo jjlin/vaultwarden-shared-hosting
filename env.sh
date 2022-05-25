@@ -2,7 +2,7 @@
 # full shell syntax. Don't use quotes in values.
 
 # The address of the vaultwarden backend. You shouldn't need to change this.
-ROCKET_ADDRESS=localhost
+ROCKET_ADDRESS=127.0.0.1
 
 # The port that the vaultwarden backend is configured to listen on.
 # You only need to change this in the unlikely event that some other program
