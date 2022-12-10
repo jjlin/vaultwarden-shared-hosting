@@ -45,7 +45,7 @@ def getenv(key, default):
                     return toks[1].strip()
         return default
 
-BACKEND_HOST = getenv("ROCKET_ADDRESS", "localhost")
+BACKEND_HOST = getenv("ROCKET_ADDRESS", "127.0.0.1")
 BACKEND_PORT = getenv("ROCKET_PORT", 28973)
 
 HTTP_PREFIX = "http://"
