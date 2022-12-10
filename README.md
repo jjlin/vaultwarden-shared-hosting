@@ -39,9 +39,9 @@ of `VAULTWARDEN_HOME` in `passenger_wsgi.py` accordingly.
 If the `git` command above isn't available for some reason, you can also just
 download a zip file of the repo and extract it:
 
-    $ wget https://github.com/jjlin/vaultwarden-shared-hosting/archive/master.zip
-    $ unzip master.zip
-    $ mv vaultwarden-shared-hosting-master vaultwarden
+    $ wget https://github.com/jjlin/vaultwarden-shared-hosting/archive/main.zip
+    $ unzip main.zip
+    $ mv vaultwarden-shared-hosting-main vaultwarden
 
 Stay logged in via SSH, as the rest of the steps below will need SSH as well.
 
