@@ -47,6 +47,10 @@ Stay logged in via SSH, as the rest of the steps below will need SSH as well.
 
 ## Install Python dependencies
 
+Dreamhost defaults to python2, but this script uses python3.
+So note the use of `pip3` and some `sys.executable` magic at the top
+of the passenger_wsgy.py file.
+
 Run this command:
 
     $ pip3 install WebOb WSGIProxy2
@@ -65,12 +69,14 @@ The output should look like:
 ## Enable the Python WSGI proxy app
 
 Copy the `passenger_wsgi.py` file in this repo into your
-`/home/<user>/<subdomain>` directory.
+`/home/<user>/<subdomain>` directory. NOT the `public` folder within the subdomain.
 
 Note that Passenger starts a persistent Python process that loads the
 `passenger_wsgi.py` script. If you need to modify the script, you'll need to
 kill the Python process (e.g., `pkill python3`) to force it to reload the
-modified script.
+modified script. Dreamhost suggests `touch restart.txt` as a way to request that
+passenger restart the wsgi script, but I have found that to be unreliable --
+better to manually kill the script yourself.
 
 For more details, see [Passenger and Python WSGI](https://help.dreamhost.com/hc/en-us/articles/215769548-Passenger-and-Python-WSGI).
 
@@ -122,47 +128,35 @@ The initial `config.json` looks like
 ```json
 {
   "domain": "https://bw.example.org",
-  "admin_token": "<output of 'openssl rand -hex 32'>"
+  "admin_token": "<output of 'vaultwarden hash'>"
 }
 ```
 
 Do the following:
 
 * Change the value of `domain` to the subdomain URL you selected.
-* Run `openssl rand -hex 32` to generate a random 32-byte (256-bit) hex
-  string, and change the value of `admin_token` to this hex string.  You'll
-  use this admin token to log into the admin page to perform further
-  configuration.
+* Run `vaultwarden hash` and follow the prompts to generate a hashed master password.
+* Set `admin_token` to the string returned.
+* You'll use the password enterred to generate the hash to
+  log into the /admin page to perform further configuration.
 
 ### Run the Vaultwarden backend server
 
-Run this command:
+Passenger calls `passenger_wsgi.py` automatically for all requests to the subdomain.
+`passenger_wsgi.py` transparently proxies all requests to the vaultwarden backend
+and then then directly returns the output. If an attempt to proxy a request to
+the backend returns a 502 error, then `passenger_wsgi.py` will `pkill vaultwarden`,
+and then run the `vaultwarden` executable in the background, with logs saved
+in `vaultwarden.log`. Then it will retry proxying the request. So vaultwarden
+should never need to be manually started, restarted, or monitored.
 
-    $ ./start.sh
-
-This script runs the `vaultwarden` executable in the background, with logs
-saved in `vaultwarden.log`.
-
-After this, visiting https://bw.example.org should show the Bitwarden web
+After moving `vaultwarden` and `web-vault` into the cwd, visiting
+https://bw.example.org should show the Bitwarden web
 vault interface, and https://bw.example.org/admin should lead to the admin
-page (after you input the admin token).
+page (after you input the admin password).
 
-You can re-run this command to restart the backend server if needed.
+You can run `pkill vaultwarden; pkill python3` to restart the backend server if needed.
 
-### Install the healthcheck script
-
-This step is technically optional, but especially if your shared host only
-allows a process to run for a certain amount of time or use a certain amount
-of CPU, you'll want to set up a cron job that periodically checks that the
-server process is still alive, and restarts it automatically if not.
-
-Run this command:
-
-    $ crontab -e
-
-Paste the contents of the `crontab` file in this repo into the editor and
-save it. If you cloned this repo into a directory not named `vaultwarden`,
-make sure to adjust the path in the crontab directive accordingly.
 
 ### Next steps
 
@@ -198,6 +192,7 @@ the Vaultwarden server, and delete the existing vaultwarden and web vault
 files:
 
     $ pkill vaultwarden
+    $ pkill python3
     $ rm -rf vaultwarden web-vault
 
 Then repeat the steps from
@@ -206,5 +201,6 @@ and [Run the Vaultwarden backend server](#run-the-vaultwarden-backend-server).
 
 ## Limitations
 
-This configuration currently doesn't support [WebSocket notifications](https://github.com/dani-garcia/vaultwarden/wiki/Enabling-WebSocket-notifications), though this isn't essential functionality.
-But if you know how to get this to work in the shared host environment, feel free to send a PR.
+This configuration supports [WebSocket notifications](https://github.com/dani-garcia/vaultwarden/wiki/Enabling-WebSocket-notifications).
+As of vaultwarden 1.29.0, and tested working (getting `101` on the websocket
+request to /notification/hub) on a shared dreamhost on 2023-07-26.
