@@ -1,3 +1,15 @@
+## Archived
+
+DreamHost no longer offers Passenger, so this configuration won't work anymore.
+
+From https://help.dreamhost.com/hc/en-us/articles/23628302213652-How-to-upgrade-to-a-VPS-and-use-a-Proxy-Server:
+
+> Passenger will be removed from all Shared servers on March 31st, 2024.
+>
+> If you previously enabled Passenger on a Shared server and configured your website to use it, your application will no longer function as of this date.
+
+---
+
 ## Running Vaultwarden on a shared hosting service
 
 **Note: Vaultwarden was formerly known as bitwarden_rs.**
