@@ -18,40 +18,29 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-import sys, os
+import sys
+import os
+import subprocess
+import time
 
 PYTHON_BIN = "/usr/bin/python3"
 if sys.executable != PYTHON_BIN:
     os.execl(PYTHON_BIN, PYTHON_BIN, *sys.argv)
 
-import webob     # https://pypi.org/project/WebOb/
-import wsgiproxy # https://pypi.org/project/WSGIProxy2/
+import webob  # https://pypi.org/project/WebOb/
+import wsgiproxy  # https://pypi.org/project/WSGIProxy2/
 
 # Change this if you cloned the repo into a non-default directory.
-VAULTWARDEN_HOME = "{}/{}".format(os.getenv("HOME"), "vaultwarden")
+VAULTWARDEN_HOME = "{}/{}".format(os.getenv("HOME"), "vaultwarden")  # TODO: Unneeded?
 
-def getenv(key, default):
-    env_file = "{}/{}".format(VAULTWARDEN_HOME, "env.sh")
-    with open(env_file, "r") as f:
-        for ln in f:
-            ln = ln.strip()
-            if len(ln) == 0 or ln.startswith("#"):
-                # Skip blank/commented lines.
-                continue
-            toks = ln.split("=")
-            if len(toks) == 2:
-                # We're only looking for lines of the form KEY=VAL.
-                if key == toks[0].strip():
-                    return toks[1].strip()
-        return default
-
-BACKEND_HOST = getenv("ROCKET_ADDRESS", "127.0.0.1")
-BACKEND_PORT = getenv("ROCKET_PORT", 28973)
+BACKEND_HOST = "127.0.0.1"
+BACKEND_PORT = 28973
 
 HTTP_PREFIX = "http://"
 HTTPS_PREFIX = "https://"
 BACKEND_URL = "http://{}:{}".format(BACKEND_HOST, BACKEND_PORT)
 PROXY = wsgiproxy.HostProxy(BACKEND_URL)
+
 
 def application(environ, start_response):
     req = webob.Request(environ)
@@ -63,6 +52,24 @@ def application(environ, start_response):
     else:
         # Proxy the request to the backend.
         res = req.get_response(PROXY)
+        if res.status_int == 502:
+            # Then the vaultwarden service isn't running, so start it
+            # check that vaultwarden not running
+            c = subprocess.run("pgrep vaultwarden", shell=True)
+            if c.returncode != 0:
+                # if it is running, then kill it
+                subprocess.run("pkill vaultwarden", shell=True)
+            # Start vaultward with local logging
+            subprocess.Popen(
+                "nohup ./vaultwarden >>vaultwarden.log 2>&1",
+                shell=True,
+                env={
+                    "ROCKET_ADDRESS": BACKEND_HOST,
+                    "ROCKET_PORT": str(BACKEND_PORT),
+                },
+            )
+            time.sleep(1)
+            res = req.get_response(PROXY)
 
     start_response(res.status, res.headerlist)
     return [res.body]
